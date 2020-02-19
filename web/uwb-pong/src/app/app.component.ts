@@ -28,7 +28,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private rightPositionBuf: Vector[] = [];
 
   // the number of messages to compute a position using a moving average
-  private numPositionsToAverage = 1;
+  private numPositionsToAverage = 3;
 
   // sizes of elements in screen coordinates
   private ballSize = 20;
