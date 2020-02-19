@@ -31,18 +31,25 @@ export class AppComponent implements OnInit, OnDestroy {
   private numPositionsToAverage = 1;
 
   // sizes of elements in screen coordinates
-  private ballSize = 10;
-  private paddleWidth = 16;
-  private paddleHeight = 80;
+  private ballSize = 20;
+  private paddleWidth = 30;
+  private paddleHeight = 120;
 
   // ball position and velocity in screen coordinates
   private ballPosition: [number, number];
   private ballVelocity: [number, number] = [0, 0]; // pixels/sec
   private ballVelocityPixelsPerSec = 300; // pixels/sec
 
+  // the "net"
+  private netHeight = 30;
+  private netWidth = 10;
+
   // player scores
   private scoreLeft = 0;
   private scoreRight = 0;
+
+  // styling
+  private readonly terminalGreen = '#4af626';
 
   private t: number;
   private updateTimer: Timer;
@@ -173,18 +180,18 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // check if ball is colliding with a paddle
     if (this.ballPosition[ 0 ] > (rx - this.paddleWidth)
-      && this.ballPosition[ 1 ] > (ry - this.paddleHeight) && this.ballPosition[ 1 ] < (ry + this.paddleHeight)) {
+      && this.ballPosition[ 1 ] > (ry - this.paddleHeight / 2) && this.ballPosition[ 1 ] < (ry + this.paddleHeight / 2)) {
       // collision with right paddle
       const intersection = (this.ballPosition[ 1 ] - ry) / this.paddleHeight; // 0: top collision, 1: bottom collision
-      const bounceAngle = intersection * Math.PI / 4;
+      const bounceAngle = intersection * Math.PI / 8;
       this.ballVelocity[ 0 ] = -Math.cos(bounceAngle) * this.ballVelocityPixelsPerSec;
       this.ballVelocity[ 1 ] = -Math.sin(bounceAngle) * this.ballVelocityPixelsPerSec;
       this.ballPosition[ 0 ] = rx - this.paddleWidth;
       setTimeout(() => this.beep.play());
     } else if (this.ballPosition[ 0 ] < (lx + this.paddleWidth)
-      && this.ballPosition[ 1 ] > (ly - this.paddleHeight) && this.ballPosition[ 1 ] < (ly + this.paddleHeight)) {
+      && this.ballPosition[ 1 ] > (ly - this.paddleHeight / 2) && this.ballPosition[ 1 ] < (ly + this.paddleHeight / 2)) {
       const intersection = (this.ballPosition[ 1 ] - ly) / this.paddleHeight; // 0: top collision, 1: bottom collision
-      const bounceAngle = intersection * Math.PI / 4;
+      const bounceAngle = intersection * Math.PI / 8;
       this.ballVelocity[ 0 ] = Math.cos(bounceAngle) * this.ballVelocityPixelsPerSec;
       this.ballVelocity[ 1 ] = -Math.sin(bounceAngle) * this.ballVelocityPixelsPerSec;
       this.ballPosition[ 0 ] = lx + this.paddleWidth;
@@ -197,6 +204,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // draw ball and paddles
     const ctx = this.canvas.nativeElement.getContext('2d');
     this.drawBackground(ctx);
+    this.drawNet(ctx);
     this.drawScores(ctx, this.scoreLeft, this.scoreRight);
     this.drawPaddle(ctx, lx, ly);
     this.drawPaddle(ctx, rx, ry);
@@ -220,23 +228,36 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private drawScores(ctx: CanvasRenderingContext2D, left: number, right: number) {
-    ctx.font = '80px Arial';
-    ctx.fillStyle = 'white';
+    ctx.font = '120px monospace';
+    ctx.fillStyle = this.terminalGreen;
     ctx.textAlign = 'center';
     ctx.fillText(left.toString(), 0.15 * this.canvasWidth, 100);
     ctx.fillText(right.toString(), 0.85 * this.canvasWidth, 100);
   }
 
   private drawPaddle(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = this.terminalGreen;
     ctx.fillRect(x - this.paddleWidth / 2, y - this.paddleHeight / 2, this.paddleWidth, this.paddleHeight);
   }
 
   private drawBall(ctx: CanvasRenderingContext2D, x: number, y: number) {
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = this.terminalGreen;
     ctx.beginPath();
     ctx.arc(x, y, this.ballSize, 0, 2 * Math.PI);
     ctx.fill();
+  }
+
+  private drawNet(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = this.terminalGreen;
+
+    const numNets = this.canvasHeight / this.netHeight / 2;
+    for (let i = 0; i < numNets; i++) {
+      ctx.fillRect(
+        this.canvasWidth / 2 - this.netWidth / 2,
+        i * (this.netHeight * 2),
+        this.netWidth,
+        this.netHeight);
+    }
   }
 
   @HostListener('window:resize', ['$event'])
