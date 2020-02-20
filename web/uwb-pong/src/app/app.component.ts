@@ -226,7 +226,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private calculateBounceAngle(ballY: number, paddleY: number, paddleHeight: number): number {
     const intersection = (ballY - paddleY) / paddleHeight; // 0: top collision, 1: bottom collision
-    const bounceAngle = intersection * Math.PI / 4;
+    const bounceAngle = intersection * Math.PI / 2;
     return bounceAngle;
   }
 
