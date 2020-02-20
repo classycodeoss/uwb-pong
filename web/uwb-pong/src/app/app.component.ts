@@ -161,15 +161,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.ballPosition[ 1 ] += this.ballVelocity[ 1 ] * dt;
 
     const onLeftSide = this.ballPosition[ 0 ] < this.canvasWidth / 2;
-    const outOfVerticalBounds = this.ballPosition[ 1 ] < 0 || this.ballPosition[ 1 ] > this.canvasHeight;
+    const outOfVerticalBounds = this.ballPosition[ 1 ] < this.ballSize
+      || this.ballPosition[ 1 ] > (this.canvasHeight - this.ballSize);
 
-    // check if ball is out of bounds
-    if (this.ballPosition[ 0 ] < 0 || (outOfVerticalBounds && onLeftSide)) {
+    // check if ball is out of horizontal bo bounds
+    if (this.ballPosition[ 0 ] < 0) {
       this.scoreRight++;
       this.launchBall();
-    } else if (this.ballPosition[ 0 ] > this.canvasWidth || (outOfVerticalBounds && !onLeftSide)) {
+    } else if (this.ballPosition[ 0 ] > this.canvasWidth) {
       this.scoreLeft++;
       this.launchBall();
+    } else if (outOfVerticalBounds) {
+      // ball has hit top/bottom, reflect it
+      this.ballVelocity[ 1 ] = -this.ballVelocity[ 1 ];
     }
 
     // calculate paddle positions in screen space
@@ -182,16 +186,14 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.ballPosition[ 0 ] > (rx - this.paddleWidth)
       && this.ballPosition[ 1 ] > (ry - this.paddleHeight / 2) && this.ballPosition[ 1 ] < (ry + this.paddleHeight / 2)) {
       // collision with right paddle
-      const intersection = (this.ballPosition[ 1 ] - ry) / this.paddleHeight; // 0: top collision, 1: bottom collision
-      const bounceAngle = intersection * Math.PI / 8;
+      const bounceAngle = this.calculateBounceAngle(this.ballPosition[1], ry, this.paddleHeight);
       this.ballVelocity[ 0 ] = -Math.cos(bounceAngle) * this.ballVelocityPixelsPerSec;
       this.ballVelocity[ 1 ] = -Math.sin(bounceAngle) * this.ballVelocityPixelsPerSec;
       this.ballPosition[ 0 ] = rx - this.paddleWidth;
       setTimeout(() => this.beep.play());
     } else if (this.ballPosition[ 0 ] < (lx + this.paddleWidth)
       && this.ballPosition[ 1 ] > (ly - this.paddleHeight / 2) && this.ballPosition[ 1 ] < (ly + this.paddleHeight / 2)) {
-      const intersection = (this.ballPosition[ 1 ] - ly) / this.paddleHeight; // 0: top collision, 1: bottom collision
-      const bounceAngle = intersection * Math.PI / 8;
+      const bounceAngle = this.calculateBounceAngle(this.ballPosition[1], ly, this.paddleHeight);
       this.ballVelocity[ 0 ] = Math.cos(bounceAngle) * this.ballVelocityPixelsPerSec;
       this.ballVelocity[ 1 ] = -Math.sin(bounceAngle) * this.ballVelocityPixelsPerSec;
       this.ballPosition[ 0 ] = lx + this.paddleWidth;
@@ -220,6 +222,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // scale to y screen axis
     return relPos * this.canvasHeight;
+  }
+
+  private calculateBounceAngle(ballY: number, paddleY: number, paddleHeight: number): number {
+    const intersection = (ballY - paddleY) / paddleHeight; // 0: top collision, 1: bottom collision
+    const bounceAngle = intersection * Math.PI / 4;
+    return bounceAngle;
   }
 
   private drawBackground(ctx: CanvasRenderingContext2D) {
