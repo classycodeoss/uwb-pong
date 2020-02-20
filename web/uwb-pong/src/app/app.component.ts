@@ -38,7 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
   // ball position and velocity in screen coordinates
   private ballPosition: [number, number];
   private ballVelocity: [number, number] = [0, 0]; // pixels/sec
-  private ballVelocityPixelsPerSec = 300; // pixels/sec
+  private ballVelocityPixelsPerSec = 380; // pixels/sec
 
   // the "net"
   private netHeight = 30;
