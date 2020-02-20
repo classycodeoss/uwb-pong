@@ -158,10 +158,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.ballPosition[ 0 ] += this.ballVelocity[ 0 ] * dt;
     this.ballPosition[ 1 ] += this.ballVelocity[ 1 ] * dt;
 
-    const onLeftSide = this.ballPosition[ 0 ] < this.canvasWidth / 2;
-    const outOfVerticalBounds = this.ballPosition[ 1 ] < this.ballSize
-      || this.ballPosition[ 1 ] > (this.canvasHeight - this.ballSize);
-
     // check if ball is out of horizontal bo bounds
     if (this.ballPosition[ 0 ] < 0) {
       this.scoreRight++;
@@ -169,7 +165,7 @@ export class AppComponent implements OnInit, OnDestroy {
     } else if (this.ballPosition[ 0 ] > this.canvasWidth) {
       this.scoreLeft++;
       this.launchBall();
-    } else if (outOfVerticalBounds) {
+    } else if (this.ballPosition[ 1 ] < this.ballSize || this.ballPosition[ 1 ] > (this.canvasHeight - this.ballSize)) {
       // ball has hit top/bottom, reflect it
       this.ballVelocity[ 1 ] = -this.ballVelocity[ 1 ];
     }
