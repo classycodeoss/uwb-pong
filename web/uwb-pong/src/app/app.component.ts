@@ -59,10 +59,8 @@ export class AppComponent implements OnInit, OnDestroy {
   canvas: ElementRef<HTMLCanvasElement>;
 
   ngOnInit() {
-    this.client = connect(undefined, {
-      host: environment.mqttHost,
-      port: environment.mqttPort,
-      protocol: 'wss',
+    this.client = connect(environment.mqttUrl, {
+      clientId: 'uwb-pong',
       username: environment.mqttUser,
       password: environment.mqttPassword
     });
